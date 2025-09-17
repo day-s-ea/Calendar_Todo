@@ -41,6 +41,20 @@ function sectionOf(timeStr) {
   return "evening";
 }
 
+function calculateDuration(startTime, endTime) {
+  const start = timeToDecimal(startTime);
+  const end = timeToDecimal(endTime);
+  const duration = end - start;
+  
+  if (duration < 1) {
+    return `${Math.round(duration * 60)}min`;
+  } else {
+    const hours = Math.floor(duration);
+    const minutes = Math.round((duration - hours) * 60);
+    return minutes > 0 ? `${hours}h ${minutes}min` : `${hours}h`;
+  }
+}
+
 const STORAGE_KEY = "calendar-data-v4";
 
 export default function CalendarApp() {
@@ -301,17 +315,25 @@ export default function CalendarApp() {
 function DayPanel({ dateISO, events, onAdd, onRemove, onClose, isMobile }) {
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState("personal");
-  const [time, setTime] = useState("08:00");
+  const [startTime, setStartTime] = useState("08:00");
+  const [endTime, setEndTime] = useState("09:00");
   const [isFormVisible, setIsFormVisible] = useState(false);
 
   const handleAdd = (e) => {
     if (e) e.preventDefault();
     if (!title.trim()) return;
     
+    // Assicurati che l'orario di fine non sia prima di quello di inizio
+    if (endTime <= startTime) {
+      alert("L'orario di fine deve essere dopo l'orario di inizio!");
+      return;
+    }
+    
     const newEvent = { 
       title: title.trim(), 
       category, 
-      time, 
+      startTime, 
+      endTime,
       createdAt: new Date().toISOString()
     };
     
@@ -323,20 +345,21 @@ function DayPanel({ dateISO, events, onAdd, onRemove, onClose, isMobile }) {
   const resetForm = () => {
     setTitle("");
     setCategory('personal');
-    setTime('08:00');
+    setStartTime('08:00');
+    setEndTime('09:00');
     setIsFormVisible(false);
   };
 
-  // Group events by time period
+  // Group events by time period and sort by start time
   const grouped = { morning: [], day: [], evening: [] };
   events.forEach((ev) => {
-    const section = sectionOf(ev.time);
+    const section = sectionOf(ev.startTime || ev.time); // Backwards compatibility
     grouped[section].push(ev);
   });
 
-  // Sort events within each period by time
+  // Sort events within each period by start time
   Object.values(grouped).forEach(arr => 
-    arr.sort((a, b) => a.time.localeCompare(b.time))
+    arr.sort((a, b) => (a.startTime || a.time).localeCompare(b.startTime || b.time))
   );
 
   const selectedDate = new Date(dateISO);
@@ -383,34 +406,59 @@ function DayPanel({ dateISO, events, onAdd, onRemove, onClose, isMobile }) {
               </div>
             ) : (
               <div className="space-y-2">
-                {grouped[key].map((ev) => (
-                  <div 
-                    key={ev.id} 
-                    className="flex items-start gap-3 bg-neutral-50 p-3 rounded-lg hover:bg-neutral-100 transition-colors"
-                  >
-                    <span 
-                      className={`w-3 h-3 rounded-full mt-0.5 flex-shrink-0 ${CATEGORIES[ev.category]?.color || 'bg-gray-400'}`}
-                      title={CATEGORIES[ev.category]?.label}
-                    />
-                    
-                    <div className="flex-grow min-w-0">
-                      <div className="text-sm font-medium text-neutral-900 mb-1">
-                        {ev.title}
-                      </div>
-                      <div className="text-xs text-neutral-500">
-                        {ev.time} • {CATEGORIES[ev.category]?.label}
-                      </div>
-                    </div>
-                    
-                    <button 
-                      onClick={() => onRemove(ev.id)}
-                      className="text-red-600 hover:text-red-700 text-sm px-2 py-1 hover:bg-red-50 rounded transition-colors flex-shrink-0"
-                      aria-label={`Elimina ${ev.title}`}
+                {grouped[key].map((ev) => {
+                  const hasEndTime = ev.endTime || (ev.startTime && ev.endTime !== ev.startTime);
+                  const duration = hasEndTime ? calculateDuration(ev.startTime || ev.time, ev.endTime) : null;
+                  
+                  return (
+                    <div 
+                      key={ev.id} 
+                      className="flex items-start gap-3 bg-neutral-50 p-3 rounded-lg hover:bg-neutral-100 transition-colors relative"
                     >
-                      🗑️
-                    </button>
-                  </div>
-                ))}
+                      {/* Timeline indicator */}
+                      <div className="flex flex-col items-center">
+                        <span 
+                          className={`w-3 h-3 rounded-full flex-shrink-0 ${CATEGORIES[ev.category]?.color || 'bg-gray-400'}`}
+                          title={CATEGORIES[ev.category]?.label}
+                        />
+                        {hasEndTime && (
+                          <>
+                            <div className={`w-0.5 h-4 ${CATEGORIES[ev.category]?.color || 'bg-gray-400'} opacity-40 mt-1`}></div>
+                            <div className={`w-2 h-2 rounded-full ${CATEGORIES[ev.category]?.color || 'bg-gray-400'} opacity-60`}></div>
+                          </>
+                        )}
+                      </div>
+                      
+                      <div className="flex-grow min-w-0">
+                        <div className="text-sm font-medium text-neutral-900 mb-1">
+                          {ev.title}
+                        </div>
+                        <div className="text-xs text-neutral-500 flex items-center gap-2">
+                          <span>
+                            {ev.startTime || ev.time}
+                            {hasEndTime && ` - ${ev.endTime}`}
+                          </span>
+                          {duration && (
+                            <>
+                              <span>•</span>
+                              <span className="text-neutral-400">{duration}</span>
+                            </>
+                          )}
+                          <span>•</span>
+                          <span>{CATEGORIES[ev.category]?.label}</span>
+                        </div>
+                      </div>
+                      
+                      <button 
+                        onClick={() => onRemove(ev.id)}
+                        className="text-red-600 hover:text-red-700 text-sm px-2 py-1 hover:bg-red-50 rounded transition-colors flex-shrink-0"
+                        aria-label={`Elimina ${ev.title}`}
+                      >
+                        🗑️
+                      </button>
+                    </div>
+                  );
+                })}
               </div>
             )}
           </div>
@@ -443,23 +491,48 @@ function DayPanel({ dateISO, events, onAdd, onRemove, onClose, isMobile }) {
               }}
             />
             
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-medium text-neutral-700 mb-1">Categoria</label>
               <select 
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
-                className="p-3 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+                className="w-full p-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
               >
                 {Object.entries(CATEGORIES).map(([k, v]) => (
                   <option key={k} value={k}>{v.label}</option>
                 ))}
               </select>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-medium text-neutral-700 mb-1">Inizio</label>
+                <input 
+                  type="time"
+                  value={startTime}
+                  onChange={(e) => {
+                    setStartTime(e.target.value);
+                    // Auto-imposta fine a 1 ora dopo se non è già impostata
+                    if (endTime <= e.target.value) {
+                      const [hours, minutes] = e.target.value.split(':');
+                      const nextHour = String(parseInt(hours) + 1).padStart(2, '0');
+                      setEndTime(`${nextHour}:${minutes}`);
+                    }
+                  }}
+                  className="w-full p-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+                />
+              </div>
               
-              <input 
-                type="time"
-                value={time}
-                onChange={(e) => setTime(e.target.value)}
-                className="p-3 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
-              />
+              <div>
+                <label className="block text-xs font-medium text-neutral-700 mb-1">Fine</label>
+                <input 
+                  type="time"
+                  value={endTime}
+                  onChange={(e) => setEndTime(e.target.value)}
+                  min={startTime}
+                  className="w-full p-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+                />
+              </div>
             </div>
             
             <div className="flex gap-2 pt-2">
