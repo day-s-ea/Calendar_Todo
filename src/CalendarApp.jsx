@@ -22,7 +22,6 @@ function endOfMonth(date) {
 }
 
 function formatISODate(d) {
-  // Usa il fuso orario locale invece di UTC
   const year = d.getFullYear();
   const month = String(d.getMonth() + 1).padStart(2, '0');
   const day = String(d.getDate()).padStart(2, '0');
@@ -64,7 +63,6 @@ export default function CalendarApp() {
   const [isLoading, setIsLoading] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
 
-  // Detect mobile viewport
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768);
     checkMobile();
@@ -72,7 +70,6 @@ export default function CalendarApp() {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  // Initialize data from localStorage
   useEffect(() => {
     try {
       const savedData = localStorage.getItem(STORAGE_KEY);
@@ -86,7 +83,6 @@ export default function CalendarApp() {
     }
   }, []);
 
-  // Save data to localStorage whenever data changes
   useEffect(() => {
     if (!isLoading) {
       try {
@@ -154,37 +150,38 @@ export default function CalendarApp() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-neutral-50">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-neutral-50 to-neutral-100">
         <div className="text-neutral-600">Caricamento...</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-neutral-50 text-neutral-900">
+    <div className="min-h-screen bg-gradient-to-br from-neutral-50 to-neutral-100 text-neutral-900">
       <div className="max-w-7xl mx-auto p-4 md:p-6">
-        {/* Header */}
         <header className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
-          <h1 className="text-2xl md:text-3xl font-semibold">Calendario</h1>
+          <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent">
+            📅 Calendario
+          </h1>
           
           <div className="flex items-center gap-2">
             <button 
               onClick={prevMonth}
-              className="px-3 py-2 rounded-lg shadow-sm bg-white hover:bg-neutral-50 transition-colors"
+              className="px-3 py-2 rounded-lg shadow-sm bg-white hover:bg-neutral-50 transition-all hover:shadow-md border border-neutral-200"
               aria-label="Mese precedente"
             >
               ◀
             </button>
             
-            <div className="px-4 py-2 rounded-lg bg-white shadow-sm min-w-[140px] text-center">
-              <div className="text-sm font-medium capitalize">
+            <div className="px-4 py-2 rounded-lg bg-white shadow-sm min-w-[140px] text-center border border-neutral-200">
+              <div className="text-sm font-semibold capitalize text-neutral-800">
                 {cursor.toLocaleString("it-IT", { month: "long", year: "numeric" })}
               </div>
             </div>
             
             <button 
               onClick={nextMonth}
-              className="px-3 py-2 rounded-lg shadow-sm bg-white hover:bg-neutral-50 transition-colors"
+              className="px-3 py-2 rounded-lg shadow-sm bg-white hover:bg-neutral-50 transition-all hover:shadow-md border border-neutral-200"
               aria-label="Mese successivo"
             >
               ▶
@@ -192,7 +189,7 @@ export default function CalendarApp() {
             
             <button 
               onClick={clearAll}
-              className="px-3 py-2 rounded-lg shadow-sm bg-red-50 text-red-700 hover:bg-red-100 transition-colors ml-2"
+              className="px-3 py-2 rounded-lg shadow-sm bg-red-50 text-red-700 hover:bg-red-100 transition-all hover:shadow-md border border-red-200 ml-2 font-medium"
             >
               Reset
             </button>
@@ -200,19 +197,16 @@ export default function CalendarApp() {
         </header>
 
         <main className={`grid gap-6 ${isMobile ? 'grid-cols-1' : 'grid-cols-1 lg:grid-cols-4'}`}>
-          {/* Calendar Grid */}
-          <section className={`bg-white rounded-xl shadow-sm overflow-hidden ${isMobile ? 'order-2' : 'lg:col-span-3'}`}>
+          <section className={`bg-white rounded-2xl shadow-md overflow-hidden border border-neutral-200 ${isMobile ? 'order-2' : 'lg:col-span-3'}`}>
             <div className="p-4 md:p-6">
-              {/* Days of week header */}
               <div className="grid grid-cols-7 gap-1 md:gap-2 mb-3">
                 {['Lun','Mar','Mer','Gio','Ven','Sab','Dom'].map(d => (
-                  <div key={d} className="text-center font-medium text-xs md:text-sm text-neutral-600 p-2">
+                  <div key={d} className="text-center font-semibold text-xs md:text-sm text-neutral-700 p-2">
                     {d}
                   </div>
                 ))}
               </div>
 
-              {/* Calendar days */}
               <div className="grid grid-cols-7 gap-1 md:gap-2">
                 {monthDays.map((dt, idx) => {
                   if (!dt) {
@@ -231,22 +225,22 @@ export default function CalendarApp() {
                       key={iso}
                       onClick={() => setSelected(isSelected ? null : iso)}
                       className={`
-                        h-16 md:h-24 lg:h-28 p-1 md:p-2 text-left border rounded-lg 
+                        h-16 md:h-24 lg:h-28 p-1 md:p-2 text-left border rounded-xl 
                         transition-all duration-200 flex flex-col justify-between
                         ${isSelected 
-                          ? 'border-blue-500 bg-blue-50 shadow-md' 
-                          : 'border-neutral-200 bg-white hover:shadow-sm hover:border-neutral-300'
+                          ? 'border-blue-500 bg-gradient-to-br from-blue-50 to-blue-100 shadow-lg scale-105' 
+                          : 'border-neutral-200 bg-white hover:shadow-md hover:border-neutral-300 hover:scale-102'
                         }
-                        ${isToday ? 'ring-2 ring-blue-200' : ''}
+                        ${isToday ? 'ring-2 ring-blue-300 ring-offset-1' : ''}
                       `}
                       aria-label={`${dt.getDate()} ${cursor.toLocaleString("it-IT", { month: "long" })}, ${evs.length} impegni`}
                     >
                       <div className="flex justify-between items-start">
-                        <div className={`text-sm md:text-base font-medium ${isToday ? 'text-blue-600' : ''}`}>
+                        <div className={`text-sm md:text-base font-semibold ${isToday ? 'text-blue-600' : ''}`}>
                           {dt.getDate()}
                         </div>
                         {evs.length > 0 && (
-                          <div className="text-xs text-neutral-500 bg-neutral-100 px-1 rounded">
+                          <div className="text-xs text-white bg-blue-500 px-1.5 py-0.5 rounded-full font-medium">
                             {evs.length}
                           </div>
                         )}
@@ -269,7 +263,6 @@ export default function CalendarApp() {
               </div>
             </div>
 
-            {/* Legend */}
             <div className="p-4 md:p-6 bg-neutral-50 border-t">
               <div className="text-sm font-medium mb-3">Legenda</div>
               <div className="flex gap-4 flex-wrap">
@@ -283,8 +276,7 @@ export default function CalendarApp() {
             </div>
           </section>
 
-          {/* Day Panel */}
-          <aside className={`bg-white rounded-xl shadow-sm ${isMobile ? 'order-1' : ''}`}>
+          <aside className={`bg-white rounded-2xl shadow-md border border-neutral-200 ${isMobile ? 'order-1' : ''}`}>
             {selected ? (
               <DayPanel
                 dateISO={selected}
@@ -296,14 +288,14 @@ export default function CalendarApp() {
               />
             ) : (
               <div className="p-6 text-center text-neutral-500">
-                <div className="text-lg mb-2">📅</div>
-                <div>Seleziona un giorno per vedere gli impegni</div>
+                <div className="text-4xl mb-3">📅</div>
+                <div className="font-medium">Seleziona un giorno</div>
+                <div className="text-sm mt-1">per vedere e gestire gli impegni</div>
               </div>
             )}
           </aside>
         </main>
 
-        {/* Footer with storage info */}
         <footer className="text-xs text-neutral-500 mt-6 text-center">
           Salvataggio automatico in localStorage del browser
         </footer>
@@ -318,28 +310,50 @@ function DayPanel({ dateISO, events, onAdd, onRemove, onClose, isMobile }) {
   const [startTime, setStartTime] = useState("08:00");
   const [endTime, setEndTime] = useState("09:00");
   const [isFormVisible, setIsFormVisible] = useState(false);
+  const [editingEvent, setEditingEvent] = useState(null);
 
   const handleAdd = (e) => {
     if (e) e.preventDefault();
     if (!title.trim()) return;
     
-    // Assicurati che l'orario di fine non sia prima di quello di inizio
     if (endTime <= startTime) {
       alert("L'orario di fine deve essere dopo l'orario di inizio!");
       return;
     }
     
-    const newEvent = { 
-      title: title.trim(), 
-      category, 
-      startTime, 
-      endTime,
-      createdAt: new Date().toISOString()
-    };
+    if (editingEvent) {
+      onRemove(editingEvent.id);
+      const updatedEvent = { 
+        ...editingEvent,
+        title: title.trim(), 
+        category, 
+        startTime, 
+        endTime
+      };
+      onAdd(updatedEvent);
+      setEditingEvent(null);
+    } else {
+      const newEvent = { 
+        title: title.trim(), 
+        category, 
+        startTime, 
+        endTime,
+        createdAt: new Date().toISOString()
+      };
+      onAdd(newEvent);
+    }
     
-    onAdd(newEvent);
     setTitle("");
     setIsFormVisible(false);
+  };
+
+  const handleEdit = (ev) => {
+    setEditingEvent(ev);
+    setTitle(ev.title);
+    setCategory(ev.category);
+    setStartTime(ev.startTime || ev.time);
+    setEndTime(ev.endTime || ev.startTime || ev.time);
+    setIsFormVisible(true);
   };
 
   const resetForm = () => {
@@ -348,16 +362,15 @@ function DayPanel({ dateISO, events, onAdd, onRemove, onClose, isMobile }) {
     setStartTime('08:00');
     setEndTime('09:00');
     setIsFormVisible(false);
+    setEditingEvent(null);
   };
 
-  // Group events by time period and sort by start time
   const grouped = { morning: [], day: [], evening: [] };
   events.forEach((ev) => {
-    const section = sectionOf(ev.startTime || ev.time); // Backwards compatibility
+    const section = sectionOf(ev.startTime || ev.time);
     grouped[section].push(ev);
   });
 
-  // Sort events within each period by start time
   Object.values(grouped).forEach(arr => 
     arr.sort((a, b) => (a.startTime || a.time).localeCompare(b.startTime || b.time))
   );
@@ -367,7 +380,6 @@ function DayPanel({ dateISO, events, onAdd, onRemove, onClose, isMobile }) {
 
   return (
     <div className="p-4 md:p-6">
-      {/* Header */}
       <div className="flex justify-between items-start mb-6">
         <div>
           <div className="font-semibold text-lg md:text-xl mb-1">
@@ -392,7 +404,6 @@ function DayPanel({ dateISO, events, onAdd, onRemove, onClose, isMobile }) {
         )}
       </div>
 
-      {/* Time periods */}
       <div className="space-y-6">
         {Object.entries(TIME_PERIODS).map(([key, period]) => (
           <div key={key}>
@@ -409,53 +420,74 @@ function DayPanel({ dateISO, events, onAdd, onRemove, onClose, isMobile }) {
                 {grouped[key].map((ev) => {
                   const hasEndTime = ev.endTime || (ev.startTime && ev.endTime !== ev.startTime);
                   const duration = hasEndTime ? calculateDuration(ev.startTime || ev.time, ev.endTime) : null;
+                  const durationMinutes = hasEndTime ? (timeToDecimal(ev.endTime) - timeToDecimal(ev.startTime || ev.time)) * 60 : 30;
+                  const heightClass = durationMinutes <= 30 ? 'min-h-[60px]' : 
+                                     durationMinutes <= 60 ? 'min-h-[80px]' : 
+                                     durationMinutes <= 120 ? 'min-h-[100px]' : 'min-h-[120px]';
                   
                   return (
                     <div 
                       key={ev.id} 
-                      className="flex items-start gap-3 bg-neutral-50 p-3 rounded-lg hover:bg-neutral-100 transition-colors relative"
+                      className={`flex items-start gap-3 bg-gradient-to-br from-white to-neutral-50 p-4 rounded-xl hover:shadow-md transition-all duration-200 relative border border-neutral-100 ${heightClass}`}
                     >
-                      {/* Timeline indicator */}
-                      <div className="flex flex-col items-center">
+                      <div className="flex flex-col items-center pt-1">
                         <span 
-                          className={`w-3 h-3 rounded-full flex-shrink-0 ${CATEGORIES[ev.category]?.color || 'bg-gray-400'}`}
+                          className={`w-4 h-4 rounded-full flex-shrink-0 ${CATEGORIES[ev.category]?.color || 'bg-gray-400'} shadow-sm`}
                           title={CATEGORIES[ev.category]?.label}
                         />
                         {hasEndTime && (
                           <>
-                            <div className={`w-0.5 h-4 ${CATEGORIES[ev.category]?.color || 'bg-gray-400'} opacity-40 mt-1`}></div>
-                            <div className={`w-2 h-2 rounded-full ${CATEGORIES[ev.category]?.color || 'bg-gray-400'} opacity-60`}></div>
+                            <div 
+                              className={`w-1 ${CATEGORIES[ev.category]?.color || 'bg-gray-400'} opacity-30 mt-1 mb-1`}
+                              style={{ height: `${Math.min(durationMinutes / 3, 50)}px` }}
+                            ></div>
+                            <div className={`w-3 h-3 rounded-full ${CATEGORIES[ev.category]?.color || 'bg-gray-400'} opacity-50 shadow-sm`}></div>
                           </>
                         )}
                       </div>
                       
                       <div className="flex-grow min-w-0">
-                        <div className="text-sm font-medium text-neutral-900 mb-1">
+                        <div className="text-base font-semibold text-neutral-900 mb-2">
                           {ev.title}
                         </div>
-                        <div className="text-xs text-neutral-500 flex items-center gap-2">
-                          <span>
+                        <div className="text-sm text-neutral-600 flex items-center gap-2 flex-wrap">
+                          <span className="font-medium">
                             {ev.startTime || ev.time}
                             {hasEndTime && ` - ${ev.endTime}`}
                           </span>
                           {duration && (
                             <>
-                              <span>•</span>
-                              <span className="text-neutral-400">{duration}</span>
+                              <span className="text-neutral-400">•</span>
+                              <span className="px-2 py-0.5 bg-blue-50 text-blue-700 rounded-md text-xs font-medium">
+                                {duration}
+                              </span>
                             </>
                           )}
-                          <span>•</span>
-                          <span>{CATEGORIES[ev.category]?.label}</span>
+                          <span className="text-neutral-400">•</span>
+                          <span className="px-2 py-0.5 bg-neutral-100 rounded-md text-xs">
+                            {CATEGORIES[ev.category]?.label}
+                          </span>
                         </div>
                       </div>
                       
-                      <button 
-                        onClick={() => onRemove(ev.id)}
-                        className="text-red-600 hover:text-red-700 text-sm px-2 py-1 hover:bg-red-50 rounded transition-colors flex-shrink-0"
-                        aria-label={`Elimina ${ev.title}`}
-                      >
-                        🗑️
-                      </button>
+                      <div className="flex gap-1 flex-shrink-0">
+                        <button 
+                          onClick={() => handleEdit(ev)}
+                          className="text-blue-600 hover:text-blue-700 p-2 hover:bg-blue-50 rounded-lg transition-colors"
+                          aria-label={`Modifica ${ev.title}`}
+                          title="Modifica"
+                        >
+                          ✏️
+                        </button>
+                        <button 
+                          onClick={() => onRemove(ev.id)}
+                          className="text-red-600 hover:text-red-700 p-2 hover:bg-red-50 rounded-lg transition-colors"
+                          aria-label={`Elimina ${ev.title}`}
+                          title="Elimina"
+                        >
+                          🗑️
+                        </button>
+                      </div>
                     </div>
                   );
                 })}
@@ -465,18 +497,19 @@ function DayPanel({ dateISO, events, onAdd, onRemove, onClose, isMobile }) {
         ))}
       </div>
 
-      {/* Add event section */}
       <div className="mt-8 border-t pt-6">
         {!isFormVisible ? (
           <button
             onClick={() => setIsFormVisible(true)}
-            className="w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors font-medium"
+            className="w-full py-3 px-4 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-xl transition-all duration-200 font-medium shadow-sm hover:shadow-md"
           >
             + Aggiungi impegno
           </button>
         ) : (
           <div className="space-y-4">
-            <div className="text-sm font-medium mb-3">Nuovo impegno</div>
+            <div className="text-sm font-semibold mb-3 text-neutral-800">
+              {editingEvent ? '✏️ Modifica impegno' : '➕ Nuovo impegno'}
+            </div>
             
             <input 
               value={title}
@@ -512,7 +545,6 @@ function DayPanel({ dateISO, events, onAdd, onRemove, onClose, isMobile }) {
                   value={startTime}
                   onChange={(e) => {
                     setStartTime(e.target.value);
-                    // Auto-imposta fine a 1 ora dopo se non è già impostata
                     if (endTime <= e.target.value) {
                       const [hours, minutes] = e.target.value.split(':');
                       const nextHour = String(parseInt(hours) + 1).padStart(2, '0');
@@ -539,13 +571,13 @@ function DayPanel({ dateISO, events, onAdd, onRemove, onClose, isMobile }) {
               <button 
                 onClick={handleAdd}
                 disabled={!title.trim()}
-                className="flex-1 py-2 px-4 bg-blue-600 hover:bg-blue-700 disabled:bg-neutral-300 disabled:cursor-not-allowed text-white rounded-lg transition-colors font-medium"
+                className="flex-1 py-2.5 px-4 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 disabled:from-neutral-300 disabled:to-neutral-300 disabled:cursor-not-allowed text-white rounded-lg transition-all duration-200 font-medium shadow-sm hover:shadow-md"
               >
-                Aggiungi
+                {editingEvent ? 'Salva' : 'Aggiungi'}
               </button>
               <button 
                 onClick={resetForm}
-                className="flex-1 py-2 px-4 bg-neutral-100 hover:bg-neutral-200 text-neutral-700 rounded-lg transition-colors"
+                className="flex-1 py-2.5 px-4 bg-neutral-100 hover:bg-neutral-200 text-neutral-700 rounded-lg transition-colors font-medium"
               >
                 Annulla
               </button>
