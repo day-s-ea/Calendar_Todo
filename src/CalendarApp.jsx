@@ -149,6 +149,16 @@ export default function CalendarApp() {
     }));
   }, []);
 
+  const updateEvent = useCallback((dateISO, eventId, updatedEvent) => {
+    setData((old) => {
+      const updated = { ...old };
+      updated[dateISO] = updated[dateISO].map(ev => 
+        ev.id === eventId ? { ...ev, ...updatedEvent } : ev
+      );
+      return updated;
+    });
+  }, []);
+
   const removeEvent = useCallback((dateISO, eventId) => {
     setData((old) => {
       const updated = { ...old };
@@ -241,6 +251,7 @@ export default function CalendarApp() {
             categories={categories}
             onClose={() => setSelected(null)}
             onAddEvent={addEvent}
+            onUpdateEvent={updateEvent}
             onRemoveEvent={removeEvent}
           />
         )}
@@ -431,7 +442,7 @@ function Calendar({ monthDays, eventsFor, categories, onSelectDate, isMobile }) 
 
 function DayCell({ date, events, categories, onClick, isMobile }) {
   if (!date) {
-    return <div className="border border-gray-200 bg-gray-50 h-16 sm:h-20 md:h-24" />;
+    return <div className="border border-gray-200 bg-gray-50 h-20 sm:h-24 md:h-28" />;
   }
 
   const isToday = formatISODate(date) === formatISODate(new Date());
@@ -439,51 +450,81 @@ function DayCell({ date, events, categories, onClick, isMobile }) {
   return (
     <div
       onClick={onClick}
-      className={`border border-gray-200 p-1 sm:p-2 h-16 sm:h-20 md:h-24 cursor-pointer hover:bg-gray-50 transition-colors overflow-hidden ${
+      className={`border border-gray-200 p-1 sm:p-2 h-20 sm:h-24 md:h-28 cursor-pointer hover:bg-gray-50 transition-colors overflow-hidden ${
         isToday ? 'bg-blue-50' : ''
       }`}
     >
-      <div className={`text-xs sm:text-sm font-semibold mb-0.5 sm:mb-1 ${isToday ? 'text-blue-600' : ''}`}>
+      <div className={`text-xs sm:text-sm font-semibold mb-1 ${isToday ? 'text-blue-600' : ''}`}>
         {date.getDate()}
       </div>
       <div className="space-y-0.5 sm:space-y-1 overflow-hidden">
-        {events.slice(0, isMobile ? 2 : 3).map((ev) => {
+        {events.slice(0, 3).map((ev) => {
           const cat = categories[ev.category] || categories.other;
           return (
             <div
               key={ev.id}
-              className={`text-xs ${cat.color} text-white px-1 py-0.5 rounded truncate`}
+              className={`text-[10px] sm:text-xs ${cat.color} text-white px-1 py-0.5 rounded truncate leading-tight`}
               title={ev.title}
             >
-              {isMobile ? '•' : ev.title}
+              {ev.title}
             </div>
           );
         })}
-        {events.length > (isMobile ? 2 : 3) && (
-          <div className="text-xs text-gray-500">+{events.length - (isMobile ? 2 : 3)}</div>
+        {events.length > 3 && (
+          <div className="text-[10px] sm:text-xs text-gray-500">+{events.length - 3}</div>
         )}
       </div>
     </div>
   );
 }
 
-function DayView({ date, events, categories, onClose, onAddEvent, onRemoveEvent }) {
+function DayView({ date, events, categories, onClose, onAddEvent, onUpdateEvent, onRemoveEvent }) {
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState(Object.keys(categories)[0]);
   const [startTime, setStartTime] = useState("09:00");
   const [endTime, setEndTime] = useState("10:00");
+  const [editingId, setEditingId] = useState(null);
 
   const dateISO = formatISODate(date);
 
   const handleAdd = () => {
     if (!title.trim()) return;
-    onAddEvent(dateISO, {
-      title: title.trim(),
-      category,
-      startTime,
-      endTime,
-    });
+    
+    if (editingId) {
+      onUpdateEvent(dateISO, editingId, {
+        title: title.trim(),
+        category,
+        startTime,
+        endTime,
+      });
+      setEditingId(null);
+    } else {
+      onAddEvent(dateISO, {
+        title: title.trim(),
+        category,
+        startTime,
+        endTime,
+      });
+    }
+    
     setTitle("");
+    setCategory(Object.keys(categories)[0]);
+    setStartTime("09:00");
+    setEndTime("10:00");
+  };
+
+  const handleEdit = (ev) => {
+    setEditingId(ev.id);
+    setTitle(ev.title);
+    setCategory(ev.category);
+    setStartTime(ev.startTime);
+    setEndTime(ev.endTime);
+  };
+
+  const handleCancelEdit = () => {
+    setEditingId(null);
+    setTitle("");
+    setCategory(Object.keys(categories)[0]);
     setStartTime("09:00");
     setEndTime("10:00");
   };
@@ -509,7 +550,9 @@ function DayView({ date, events, categories, onClose, onAddEvent, onRemoveEvent 
           </div>
 
           <div className="mb-6 p-3 sm:p-4 bg-gray-50 rounded">
-            <h3 className="font-semibold mb-3 text-sm sm:text-base">Aggiungi Evento</h3>
+            <h3 className="font-semibold mb-3 text-sm sm:text-base">
+              {editingId ? "✏️ Modifica Evento" : "➕ Aggiungi Evento"}
+            </h3>
             <div className="space-y-3">
               <input
                 type="text"
@@ -541,12 +584,22 @@ function DayView({ date, events, categories, onClose, onAddEvent, onRemoveEvent 
                   className="border rounded px-2 sm:px-3 py-2 text-sm"
                 />
               </div>
-              <button
-                onClick={handleAdd}
-                className="w-full bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 text-sm"
-              >
-                Aggiungi
-              </button>
+              <div className="flex gap-2">
+                <button
+                  onClick={handleAdd}
+                  className="flex-1 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 text-sm"
+                >
+                  {editingId ? "💾 Salva" : "➕ Aggiungi"}
+                </button>
+                {editingId && (
+                  <button
+                    onClick={handleCancelEdit}
+                    className="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400 text-sm"
+                  >
+                    Annulla
+                  </button>
+                )}
+              </div>
             </div>
           </div>
 
@@ -558,7 +611,9 @@ function DayView({ date, events, categories, onClose, onAddEvent, onRemoveEvent 
                 events={groupedEvents[key]}
                 categories={categories}
                 dateISO={dateISO}
+                onEdit={handleEdit}
                 onRemove={onRemoveEvent}
+                editingId={editingId}
               />
             ))}
           </div>
@@ -568,7 +623,7 @@ function DayView({ date, events, categories, onClose, onAddEvent, onRemoveEvent 
   );
 }
 
-function EventSection({ title, events, categories, dateISO, onRemove }) {
+function EventSection({ title, events, categories, dateISO, onEdit, onRemove, editingId }) {
   if (events.length === 0) return null;
 
   return (
@@ -577,8 +632,15 @@ function EventSection({ title, events, categories, dateISO, onRemove }) {
       <div className="space-y-2">
         {events.map((ev) => {
           const cat = categories[ev.category] || categories.other;
+          const isEditing = editingId === ev.id;
+          
           return (
-            <div key={ev.id} className="flex items-center justify-between p-2 sm:p-3 bg-gray-50 rounded gap-2">
+            <div 
+              key={ev.id} 
+              className={`flex items-center justify-between p-2 sm:p-3 rounded gap-2 ${
+                isEditing ? 'bg-blue-100 border-2 border-blue-400' : 'bg-gray-50'
+              }`}
+            >
               <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
                 <div className={`w-3 h-3 sm:w-4 sm:h-4 rounded ${cat.color} flex-shrink-0`} />
                 <div className="flex-1 min-w-0">
@@ -588,12 +650,22 @@ function EventSection({ title, events, categories, dateISO, onRemove }) {
                   </div>
                 </div>
               </div>
-              <button
-                onClick={() => onRemove(dateISO, ev.id)}
-                className="text-red-500 hover:text-red-700 flex-shrink-0 px-2"
-              >
-                ✕
-              </button>
+              <div className="flex gap-1 flex-shrink-0">
+                <button
+                  onClick={() => onEdit(ev)}
+                  className="text-blue-500 hover:text-blue-700 px-2 py-1 text-sm"
+                  title="Modifica"
+                >
+                  ✏️
+                </button>
+                <button
+                  onClick={() => onRemove(dateISO, ev.id)}
+                  className="text-red-500 hover:text-red-700 px-2 py-1 text-sm"
+                  title="Elimina"
+                >
+                  🗑️
+                </button>
+              </div>
             </div>
           );
         })}
