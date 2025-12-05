@@ -207,7 +207,7 @@ export default function CalendarApp() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4">
+    <div className="min-h-screen bg-gray-50 p-2 sm:p-4">
       <div className="max-w-7xl mx-auto">
         <Header 
           cursor={cursor}
@@ -251,34 +251,34 @@ export default function CalendarApp() {
 
 function Header({ cursor, onPrev, onNext, onClear, onManageCategories }) {
   return (
-    <div className="bg-white rounded-lg shadow p-4 mb-4">
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <h1 className="text-2xl font-bold">Calendario</h1>
+    <div className="bg-white rounded-lg shadow p-3 sm:p-4 mb-4">
+      <div className="flex flex-col gap-3">
+        <h1 className="text-xl sm:text-2xl font-bold text-center sm:text-left">Calendario</h1>
         
-        <div className="flex items-center gap-2">
-          <button onClick={onPrev} className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300">
+        <div className="flex items-center justify-center gap-2">
+          <button onClick={onPrev} className="px-3 py-1.5 bg-gray-200 rounded hover:bg-gray-300 flex-shrink-0 text-lg">
             ←
           </button>
-          <span className="font-semibold min-w-[150px] text-center">
+          <span className="font-semibold text-center text-sm sm:text-base px-2">
             {cursor.toLocaleDateString('it-IT', { month: 'long', year: 'numeric' })}
           </span>
-          <button onClick={onNext} className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300">
+          <button onClick={onNext} className="px-3 py-1.5 bg-gray-200 rounded hover:bg-gray-300 flex-shrink-0 text-lg">
             →
           </button>
         </div>
 
-        <div className="flex gap-2">
+        <div className="flex flex-col sm:flex-row gap-2">
           <button 
             onClick={onManageCategories}
-            className="px-4 py-2 bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-lg hover:from-purple-600 hover:to-purple-700 font-medium shadow-md hover:shadow-lg transition-all"
+            className="w-full sm:w-auto px-4 py-2 bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-lg hover:from-purple-600 hover:to-purple-700 font-medium shadow-md hover:shadow-lg transition-all text-sm"
           >
-            🏷️ Gestisci Categorie
+            🏷️ Categorie
           </button>
           <button 
             onClick={onClear}
-            className="px-4 py-2 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-lg hover:from-red-600 hover:to-red-700 font-medium shadow-md hover:shadow-lg transition-all"
+            className="w-full sm:w-auto px-4 py-2 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-lg hover:from-red-600 hover:to-red-700 font-medium shadow-md hover:shadow-lg transition-all text-sm"
           >
-            🗑️ Cancella Tutto
+            🗑️ Cancella
           </button>
         </div>
       </div>
@@ -308,23 +308,23 @@ function CategoryManager({ categories, onAdd, onRemove, onClose }) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[80vh] overflow-y-auto">
-        <div className="sticky top-0 bg-white border-b border-gray-200 p-6 rounded-t-lg">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 sm:p-4">
+      <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+        <div className="sticky top-0 bg-white border-b border-gray-200 p-4 sm:p-6 rounded-t-lg">
           <div className="flex justify-between items-center">
-            <h2 className="text-2xl font-bold">Gestione Categorie</h2>
+            <h2 className="text-lg sm:text-2xl font-bold">Gestione Categorie</h2>
             <button 
               onClick={onClose} 
-              className="text-gray-400 hover:text-gray-600 text-3xl leading-none"
+              className="text-gray-400 hover:text-gray-600 text-3xl leading-none px-2"
             >
               &times;
             </button>
           </div>
         </div>
 
-        <div className="p-6">
-          <div className="mb-6 p-5 bg-gradient-to-br from-blue-50 to-purple-50 rounded-lg border border-blue-100">
-            <h3 className="font-semibold mb-4 text-lg">✨ Crea Nuova Categoria</h3>
+        <div className="p-4 sm:p-6">
+          <div className="mb-6 p-4 sm:p-5 bg-gradient-to-br from-blue-50 to-purple-50 rounded-lg border border-blue-100">
+            <h3 className="font-semibold mb-4 text-base sm:text-lg">✨ Crea Nuova Categoria</h3>
             <div className="flex flex-col gap-4">
               <div>
                 <label className="block text-sm font-medium mb-2 text-gray-700">Nome categoria</label>
@@ -332,22 +332,22 @@ function CategoryManager({ categories, onAdd, onRemove, onClose }) {
                   type="text"
                   value={newLabel}
                   onChange={(e) => setNewLabel(e.target.value)}
-                  placeholder="Es. Sport, Studio, Famiglia..."
-                  className="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Es. Sport, Studio..."
+                  className="w-full border border-gray-300 rounded-lg px-3 sm:px-4 py-2 sm:py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
               
               <div>
                 <label className="block text-sm font-medium mb-2 text-gray-700">Scegli un colore</label>
-                <div className="grid grid-cols-5 gap-2.5">
+                <div className="grid grid-cols-5 gap-2">
                   {COLOR_OPTIONS.map((color) => (
                     <button
                       key={color.class}
                       onClick={() => setNewColor(color.class)}
-                      className={`${color.class} aspect-square rounded-lg border-3 transition-all transform hover:scale-105 ${
+                      className={`${color.class} h-10 sm:h-12 rounded-lg transition-all transform hover:scale-105 ${
                         newColor === color.class 
-                          ? 'border-4 border-gray-800 ring-2 ring-gray-800 ring-offset-2' 
-                          : 'border-2 border-gray-200 hover:border-gray-400'
+                          ? 'ring-2 ring-gray-800 ring-offset-2' 
+                          : 'ring-1 ring-gray-200'
                       }`}
                       title={color.name}
                     />
@@ -357,7 +357,7 @@ function CategoryManager({ categories, onAdd, onRemove, onClose }) {
 
               <button
                 onClick={handleAdd}
-                className="bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-3 rounded-lg hover:from-green-600 hover:to-green-700 font-medium shadow-md hover:shadow-lg transition-all"
+                className="bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-2.5 rounded-lg hover:from-green-600 hover:to-green-700 font-medium shadow-md hover:shadow-lg transition-all text-sm"
               >
                 ➕ Aggiungi Categoria
               </button>
@@ -365,19 +365,19 @@ function CategoryManager({ categories, onAdd, onRemove, onClose }) {
           </div>
 
           <div>
-            <h3 className="font-semibold mb-4 text-lg">📋 Categorie Esistenti</h3>
-            <div className="space-y-2.5">
+            <h3 className="font-semibold mb-4 text-base sm:text-lg">📋 Categorie Esistenti</h3>
+            <div className="space-y-2">
               {Object.entries(categories).map(([id, cat]) => (
                 <div 
                   key={id} 
-                  className="flex items-center justify-between p-4 bg-white border border-gray-200 rounded-lg hover:shadow-md transition-shadow"
+                  className="flex items-center justify-between p-3 sm:p-4 bg-white border border-gray-200 rounded-lg hover:shadow-md transition-shadow"
                 >
-                  <div className="flex items-center gap-3">
-                    <div className={`w-8 h-8 rounded-lg ${cat.color} shadow-sm`} />
-                    <div>
-                      <span className="font-medium text-gray-800">{cat.label}</span>
+                  <div className="flex items-center gap-3 min-w-0 flex-1">
+                    <div className={`w-6 h-6 sm:w-8 sm:h-8 rounded-lg ${cat.color} shadow-sm flex-shrink-0`} />
+                    <div className="min-w-0 flex-1">
+                      <span className="font-medium text-gray-800 text-sm sm:text-base block truncate">{cat.label}</span>
                       {Object.keys(DEFAULT_CATEGORIES).includes(id) && (
-                        <span className="ml-2 text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded">
+                        <span className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded inline-block mt-1">
                           Predefinita
                         </span>
                       )}
@@ -386,9 +386,9 @@ function CategoryManager({ categories, onAdd, onRemove, onClose }) {
                   {!Object.keys(DEFAULT_CATEGORIES).includes(id) && (
                     <button
                       onClick={() => onRemove(id)}
-                      className="text-red-500 hover:text-red-700 hover:bg-red-50 px-3 py-1.5 rounded-lg transition-colors font-medium"
+                      className="text-red-500 hover:text-red-700 hover:bg-red-50 px-2 sm:px-3 py-1.5 rounded-lg transition-colors font-medium text-sm flex-shrink-0 ml-2"
                     >
-                      🗑️ Elimina
+                      🗑️
                     </button>
                   )}
                 </div>
@@ -402,13 +402,13 @@ function CategoryManager({ categories, onAdd, onRemove, onClose }) {
 }
 
 function Calendar({ monthDays, eventsFor, categories, onSelectDate, isMobile }) {
-  const days = ['Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab', 'Dom'];
+  const days = isMobile ? ['L', 'M', 'M', 'G', 'V', 'S', 'D'] : ['Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab', 'Dom'];
 
   return (
     <div className="bg-white rounded-lg shadow overflow-hidden">
       <div className="grid grid-cols-7 bg-gray-100">
-        {days.map((d) => (
-          <div key={d} className="p-2 text-center font-semibold text-sm">
+        {days.map((d, i) => (
+          <div key={i} className="p-1.5 sm:p-2 text-center font-semibold text-xs sm:text-sm">
             {d}
           </div>
         ))}
@@ -431,7 +431,7 @@ function Calendar({ monthDays, eventsFor, categories, onSelectDate, isMobile }) 
 
 function DayCell({ date, events, categories, onClick, isMobile }) {
   if (!date) {
-    return <div className="border border-gray-200 bg-gray-50 aspect-square" />;
+    return <div className="border border-gray-200 bg-gray-50 h-16 sm:h-20 md:h-24" />;
   }
 
   const isToday = formatISODate(date) === formatISODate(new Date());
@@ -439,14 +439,14 @@ function DayCell({ date, events, categories, onClick, isMobile }) {
   return (
     <div
       onClick={onClick}
-      className={`border border-gray-200 p-2 aspect-square cursor-pointer hover:bg-gray-50 transition-colors ${
+      className={`border border-gray-200 p-1 sm:p-2 h-16 sm:h-20 md:h-24 cursor-pointer hover:bg-gray-50 transition-colors overflow-hidden ${
         isToday ? 'bg-blue-50' : ''
       }`}
     >
-      <div className={`text-sm font-semibold mb-1 ${isToday ? 'text-blue-600' : ''}`}>
+      <div className={`text-xs sm:text-sm font-semibold mb-0.5 sm:mb-1 ${isToday ? 'text-blue-600' : ''}`}>
         {date.getDate()}
       </div>
-      <div className="space-y-1 overflow-hidden">
+      <div className="space-y-0.5 sm:space-y-1 overflow-hidden">
         {events.slice(0, isMobile ? 2 : 3).map((ev) => {
           const cat = categories[ev.category] || categories.other;
           return (
@@ -455,7 +455,7 @@ function DayCell({ date, events, categories, onClick, isMobile }) {
               className={`text-xs ${cat.color} text-white px-1 py-0.5 rounded truncate`}
               title={ev.title}
             >
-              {ev.title}
+              {isMobile ? '•' : ev.title}
             </div>
           );
         })}
@@ -498,52 +498,52 @@ function DayView({ date, events, categories, onClose, onAddEvent, onRemoveEvent 
   }, [events]);
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-        <div className="p-6">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 sm:p-4">
+      <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+        <div className="p-4 sm:p-6">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-bold">
-              {date.toLocaleDateString('it-IT', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+            <h2 className="text-base sm:text-xl font-bold">
+              {date.toLocaleDateString('it-IT', { weekday: 'long', day: 'numeric', month: 'long' })}
             </h2>
-            <button onClick={onClose} className="text-2xl">&times;</button>
+            <button onClick={onClose} className="text-2xl px-2">&times;</button>
           </div>
 
-          <div className="mb-6 p-4 bg-gray-50 rounded">
-            <h3 className="font-semibold mb-3">Aggiungi Evento</h3>
+          <div className="mb-6 p-3 sm:p-4 bg-gray-50 rounded">
+            <h3 className="font-semibold mb-3 text-sm sm:text-base">Aggiungi Evento</h3>
             <div className="space-y-3">
               <input
                 type="text"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="Titolo evento"
-                className="w-full border rounded px-3 py-2"
+                className="w-full border rounded px-3 py-2 text-sm"
               />
               <select
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
-                className="w-full border rounded px-3 py-2"
+                className="w-full border rounded px-3 py-2 text-sm"
               >
                 {Object.entries(categories).map(([id, cat]) => (
                   <option key={id} value={id}>{cat.label}</option>
                 ))}
               </select>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-2 sm:gap-3">
                 <input
                   type="time"
                   value={startTime}
                   onChange={(e) => setStartTime(e.target.value)}
-                  className="border rounded px-3 py-2"
+                  className="border rounded px-2 sm:px-3 py-2 text-sm"
                 />
                 <input
                   type="time"
                   value={endTime}
                   onChange={(e) => setEndTime(e.target.value)}
-                  className="border rounded px-3 py-2"
+                  className="border rounded px-2 sm:px-3 py-2 text-sm"
                 />
               </div>
               <button
                 onClick={handleAdd}
-                className="w-full bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                className="w-full bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 text-sm"
               >
                 Aggiungi
               </button>
@@ -573,24 +573,24 @@ function EventSection({ title, events, categories, dateISO, onRemove }) {
 
   return (
     <div>
-      <h3 className="font-semibold mb-2">{title}</h3>
+      <h3 className="font-semibold mb-2 text-sm sm:text-base">{title}</h3>
       <div className="space-y-2">
         {events.map((ev) => {
           const cat = categories[ev.category] || categories.other;
           return (
-            <div key={ev.id} className="flex items-center justify-between p-3 bg-gray-50 rounded">
-              <div className="flex items-center gap-3 flex-1">
-                <div className={`w-4 h-4 rounded ${cat.color}`} />
-                <div className="flex-1">
-                  <div className="font-medium">{ev.title}</div>
-                  <div className="text-sm text-gray-600">
+            <div key={ev.id} className="flex items-center justify-between p-2 sm:p-3 bg-gray-50 rounded gap-2">
+              <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
+                <div className={`w-3 h-3 sm:w-4 sm:h-4 rounded ${cat.color} flex-shrink-0`} />
+                <div className="flex-1 min-w-0">
+                  <div className="font-medium text-sm sm:text-base truncate">{ev.title}</div>
+                  <div className="text-xs sm:text-sm text-gray-600">
                     {ev.startTime} - {ev.endTime} ({calculateDuration(ev.startTime, ev.endTime)})
                   </div>
                 </div>
               </div>
               <button
                 onClick={() => onRemove(dateISO, ev.id)}
-                className="text-red-500 hover:text-red-700"
+                className="text-red-500 hover:text-red-700 flex-shrink-0 px-2"
               >
                 ✕
               </button>
